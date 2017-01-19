@@ -41,6 +41,6 @@ for version in "${versions[@]}"; do
 	travisEnv='\n  - VERSION='"$version$travisEnv"
 done
 
-travis="$(awk -v 'RS=\n\n' '$1 == "env:" { $0 = "env:'"$travisEnv"'" } { printf "%s%s", $0, RS }' .travis.yml)"
+#travis="$(awk -v 'RS=\n\n' '$1 == "env:" { $0 = "env:'"$travisEnv"'" } { printf "%s%s", $0, RS }' .travis.yml)"
 #echo "$travis" > .travis.yml
 rm -f .travis.yml

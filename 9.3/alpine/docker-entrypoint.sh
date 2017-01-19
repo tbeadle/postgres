@@ -51,9 +51,9 @@ if [ "$1" = 'postgres' ]; then
 
 		# check password first so we can output the warning before postgres
 		# messes it up
-		file_env 'POSTGRES_PASSWORD'
-		if [ "$POSTGRES_PASSWORD" ]; then
-			pass="PASSWORD '$POSTGRES_PASSWORD'"
+		file_env 'PGPASSWORD'
+		if [ "$PGPASSWORD" ]; then
+			pass="PASSWORD '$PGPASSWORD'"
 			authMethod=md5
 		else
 			# The - option suppresses leading tabs but *not* spaces. :)
@@ -66,7 +66,7 @@ if [ "$1" = 'postgres' ]; then
 				         effectively any other container on the same
 				         system.
 
-				         Use "-e POSTGRES_PASSWORD=password" to set
+				         Use "-e PGPASSWORD=password" to set
 				         it in "docker run".
 				****************************************************
 			EOWARN
