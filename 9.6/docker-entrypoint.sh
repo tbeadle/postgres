@@ -89,7 +89,7 @@ if [ "$1" = 'postgres' ]; then
 		psql=( psql -v ON_ERROR_STOP=1 )
 
 		if [ "$PGDATABASE" != 'postgres' ]; then
-			"${psql[@]}" --username postgres <<-EOSQL
+			"${psql[@]}" --username postgres --dbname postgres <<-EOSQL
 				CREATE DATABASE "$PGDATABASE" ;
 			EOSQL
 			echo
@@ -104,8 +104,6 @@ if [ "$1" = 'postgres' ]; then
 			$op USER "$PGUSER" WITH SUPERUSER $pass ;
 		EOSQL
 		echo
-
-		psql+=( --username "$PGUSER" --dbname "$PGDATABASE" )
 
 		echo
 		# Taken from https://www.youtube.com/watch?v=JqMduJimzFQ
