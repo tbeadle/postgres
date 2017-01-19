@@ -1,0 +1,32 @@
+version: '2'
+services:
+  pg9_6:
+    image: tbeadle/postgres:9.6
+    build: ./9.6
+  pg9_6_alpine:
+    image: tbeadle/postgres:9.6-alpine
+    build: ./9.6/alpine
+  pg9_5:
+    image: tbeadle/postgres:9.5
+    build: ./9.5
+  pg9_5_alpine:
+    image: tbeadle/postgres:9.5-alpine
+    build: ./9.5/alpine
+  pg9_4:
+    image: tbeadle/postgres:9.4
+    build: ./9.4
+  pg9_4_alpine:
+    image: tbeadle/postgres:9.4-alpine
+    build: ./9.4/alpine
+  pg9_3:
+    image: tbeadle/postgres:9.3
+    build: ./9.3
+  pg9_3_alpine:
+    image: tbeadle/postgres:9.3-alpine
+    build: ./9.3/alpine
+  pg9_2:
+    image: tbeadle/postgres:9.2
+    build: ./9.2
+  pg9_2_alpine:
+    image: tbeadle/postgres:9.2-alpine
+    build: ./9.2/alpine
