@@ -126,8 +126,8 @@ log_disconnections = off
 log_lock_waits = on                     # log lock waits >= deadlock_timeout
 log_temp_files = 0                      # log temporary files equal or larger
 EOF
-		if verlt "${PG_MAJOR}" "9.6"; then
-			# checkpoint_segments is deprecated in 9.6
+		if verlt "${PG_MAJOR}" "9.5"; then
+			# checkpoint_segments is deprecated in 9.5
 			echo "checkpoint_segments = 32  # in logfile segments, min 1, 16MB each" >> ${PGDATA}/postgresql.conf
 		fi
 
