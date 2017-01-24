@@ -1,5 +1,7 @@
 #!/bin/bash
 set -e
+shopt -s nullglob
+
 
 # usage: file_env VAR [DEFAULT]
 #    ie: file_env 'XYZ_DB_PASSWORD' 'example'
@@ -36,6 +38,13 @@ if [ "${1:0:1}" = '-' ]; then
 fi
 
 if [ "$1" = 'postgres' ]; then
+	for x in /docker-pre-entrypoint.d/*; do
+		if [ -x "${x}" ]; then
+			echo "-----> Running ${x}"
+			"${x}"
+		fi
+	done
+
 	mkdir -p "$PGDATA"
 	chmod 700 "$PGDATA"
 	chown -R postgres "$PGDATA"
@@ -148,6 +157,13 @@ EOF
 		echo 'PostgreSQL init process complete; ready for start up.'
 		echo
 	fi
+
+	for x in /docker-post-entrypoint.d/*; do
+		if [ -x "${x}" ]; then
+			echo "-----> Running ${x}"
+			"${x}"
+		fi
+	done
 
 	exec gosu postgres "$@"
 fi

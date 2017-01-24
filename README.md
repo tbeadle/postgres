@@ -17,6 +17,13 @@ The following changes are incorporated:
    `psql` command. (Only in the debian-based images)
  - The suggestions for postgresql.conf taken from Christophe Pettus's excellent
    talk at https://www.youtube.com/watch?v=jqmdujimzfq are included.
+ - If any executable scripts are found in `/docker-pre-entrypoint.d`, then those
+   scripts will be executed before initializing or starting the database.
+   If any executable scripts are found in `/docker-pre-entrypoint.d`, then those
+   scripts will be executed immediately before starting the database.  These
+   directories are different from the standard `/docker-entrypoint-initdb.d` in
+   that that directory will only be processed when the database did not already
+   exist and is getting initialized.
 
 The images are on docker hub at https://hub.docker.com/r/tbeadle/postgres/
 
