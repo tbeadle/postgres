@@ -19,11 +19,18 @@ The following changes are incorporated:
    talk at https://www.youtube.com/watch?v=jqmdujimzfq are included.
  - If any executable scripts are found in `/docker-pre-entrypoint.d`, then those
    scripts will be executed before initializing or starting the database.
-   If any executable scripts are found in `/docker-pre-entrypoint.d`, then those
+   If any executable scripts are found in `/docker-post-entrypoint.d`, then those
    scripts will be executed immediately before starting the database.  These
    directories are different from the standard `/docker-entrypoint-initdb.d` in
    that that directory will only be processed when the database did not already
    exist and is getting initialized.
+ - There are some environment variables that can be used to tune the
+   postgresql.conf:
+
+LOG_MIN_DURATION_TIMEOUT | Cause statements taken longer than the given value to
+be logged.  Defaults to 600ms.
+CHECKPOINT_TIMEOUT | Set the maximum amount of time between checkpoints.
+Defaults to 20min.
 
 The images are on docker hub at https://hub.docker.com/r/tbeadle/postgres/
 

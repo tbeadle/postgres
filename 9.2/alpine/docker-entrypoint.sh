@@ -121,19 +121,20 @@ if [ "$1" = 'postgres' ]; then
 		echo
 
 		echo
-		# Taken from https://www.youtube.com/watch?v=JqMduJimzFQ
+		# Adapted from https://www.youtube.com/watch?v=JqMduJimzFQ
 		cat <<EOF >> ${PGDATA}/postgresql.conf
 shared_buffers = 512MB                  # min 128kB
 work_mem = 32MB                         # min 64kB
 maintenance_work_mem = 128MB            # min 1MB
 wal_buffers = 16MB                      # min 32kB, -1 sets based on shared_buffers
-checkpoint_timeout = 20min              # range 30s-1h
+checkpoint_timeout = ${CHECKPOINT_TIMEOUT:-20min}              # range 30s-1h
 checkpoint_completion_target = 0.9      # checkpoint target duration, 0.0 - 1.0
 effective_cache_size = 938MB
 logging_collector = on
 log_destination = 'csvlog'              # Valid values are combinations of
-log_filename = 'postgresql-%Y-%m-%d_%H%M%S.log' # log file name pattern,
-log_rotation_size = 1GB                 # Automatic rotation of logfiles will
+log_filename = 'postgresql-%a.log' # log file name pattern,
+log_rotation_age = 1440
+log_truncate_on_rotation = on
 log_min_duration_statement = ${LOG_MIN_DURATION_TIMEOUT:-600ms}      # -1 is disabled, 0 logs all statements
 log_checkpoints = on
 log_connections = off
