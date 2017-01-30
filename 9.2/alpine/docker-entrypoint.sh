@@ -92,34 +92,6 @@ if [ "$1" = 'postgres' ]; then
 
 		{ echo; echo "host all all samenet $authMethod"; } | su-exec postgres tee -a "$PGDATA/pg_hba.conf" > /dev/null
 
-		# internal start of server in order to allow set-up using psql-client		
-		# does not listen on external TCP/IP and waits until start finishes
-		su-exec postgres pg_ctl -D "$PGDATA" \
-			-o "-c listen_addresses='localhost'" \
-			-w start
-
-		file_env 'PGUSER' 'postgres'
-		file_env 'PGDATABASE' "$PGUSER"
-
-		psql=( psql -v ON_ERROR_STOP=1 )
-
-		if [ "$PGDATABASE" != 'postgres' ]; then
-			"${psql[@]}" --username postgres --dbname postgres <<-EOSQL
-				CREATE DATABASE "$PGDATABASE" ;
-			EOSQL
-			echo
-		fi
-
-		if [ "$PGUSER" = 'postgres' ]; then
-			op='ALTER'
-		else
-			op='CREATE'
-		fi
-		"${psql[@]}" --username postgres <<-EOSQL
-			$op USER "$PGUSER" WITH SUPERUSER $pass ;
-		EOSQL
-		echo
-
 		echo
 		# Adapted from https://www.youtube.com/watch?v=JqMduJimzFQ
 		cat <<EOF >> ${PGDATA}/postgresql.conf
@@ -148,12 +120,49 @@ EOF
 		fi
 
 		echo
+
+		file_env 'PGUSER' 'postgres'
+		file_env 'PGDATABASE' "$PGUSER"
+
+		for x in /docker-builtin-pre-start.d/*; do
+			if [ -f "${x}" -a -x "${x}" ]; then
+				echo "-----> Running ${x}"
+				"${x}"
+			fi
+		done
+
+		# internal start of server in order to allow set-up using psql-client
+		# does not listen on external TCP/IP and waits until start finishes
+		su-exec postgres pg_ctl -D "$PGDATA" \
+			-o "-c listen_addresses='localhost'" \
+			-w start
+
+		psql=( psql -v ON_ERROR_STOP=1 )
+
+		if [ "$PGDATABASE" != 'postgres' ]; then
+			"${psql[@]}" --username postgres --dbname postgres <<-EOSQL
+				CREATE DATABASE "$PGDATABASE" ;
+			EOSQL
+			echo
+		fi
+
+		if [ "$PGUSER" = 'postgres' ]; then
+			op='ALTER'
+		else
+			op='CREATE'
+		fi
+		"${psql[@]}" --username postgres <<-EOSQL
+			$op USER "$PGUSER" WITH SUPERUSER $pass ;
+		EOSQL
+
+		echo
 		for x in /docker-builtin-initdb.d/*; do
 			if [ -f "${x}" -a -x "${x}" ]; then
 				echo "-----> Running ${x}"
 				"${x}"
 			fi
 		done
+
 		for f in /docker-entrypoint-initdb.d/*; do
 			case "$f" in
 				*.sh)     echo "$0: running $f"; . "$f" ;;
