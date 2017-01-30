@@ -39,7 +39,7 @@ fi
 
 if [ "$1" = 'postgres' ]; then
 	for x in /docker-pre-entrypoint.d/*; do
-		if [ -x "${x}" ]; then
+		if [ -f "${x}" -a -x "${x}" ]; then
 			echo "-----> Running ${x}"
 			"${x}"
 		fi
@@ -159,7 +159,7 @@ EOF
 	fi
 
 	for x in /docker-post-entrypoint.d/*; do
-		if [ -x "${x}" ]; then
+		if [ -f "${x}" -a -x "${x}" ]; then
 			echo "-----> Running ${x}"
 			"${x}"
 		fi

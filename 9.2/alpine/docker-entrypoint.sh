@@ -38,8 +38,14 @@ if [ "${1:0:1}" = '-' ]; then
 fi
 
 if [ "$1" = 'postgres' ]; then
+	for x in /docker-pre-builtin.d/*; do
+		if [ -f "${x}" -a -x "${x}" ]; then
+			echo "-----> Running ${x}"
+			"${x}"
+		fi
+	done
 	for x in /docker-pre-entrypoint.d/*; do
-		if [ -x "${x}" ]; then
+		if [ -f "${x}" -a -x "${x}" ]; then
 			echo "-----> Running ${x}"
 			"${x}"
 		fi
@@ -141,6 +147,12 @@ EOF
 		fi
 
 		echo
+		for x in /docker-builtin-initdb.d/*; do
+			if [ -f "${x}" -a -x "${x}" ]; then
+				echo "-----> Running ${x}"
+				"${x}"
+			fi
+		done
 		for f in /docker-entrypoint-initdb.d/*; do
 			case "$f" in
 				*.sh)     echo "$0: running $f"; . "$f" ;;
@@ -158,8 +170,14 @@ EOF
 		echo
 	fi
 
+	for x in /docker-post-builtin.d/*; do
+		if [ -f "${x}" -a -x "${x}" ]; then
+			echo "-----> Running ${x}"
+			"${x}"
+		fi
+	done
 	for x in /docker-post-entrypoint.d/*; do
-		if [ -x "${x}" ]; then
+		if [ -f "${x}" -a -x "${x}" ]; then
 			echo "-----> Running ${x}"
 			"${x}"
 		fi
