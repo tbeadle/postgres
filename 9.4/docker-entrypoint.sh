@@ -2,49 +2,18 @@
 set -e
 shopt -s nullglob
 
-
-# usage: file_env VAR [DEFAULT]
-#    ie: file_env 'XYZ_DB_PASSWORD' 'example'
-# (will allow for "$XYZ_DB_PASSWORD_FILE" to fill in the value of
-#  "$XYZ_DB_PASSWORD" from a file, especially for Docker's secrets feature)
-file_env() {
-	local var="$1"
-	local fileVar="${var}_FILE"
-	local def="${2:-}"
-	if [ "${!var:-}" ] && [ "${!fileVar:-}" ]; then
-		echo >&2 "error: both $var and $fileVar are set (but are exclusive)"
-		exit 1
-	fi
-	local val="$def"
-	if [ "${!var:-}" ]; then
-		val="${!var}"
-	elif [ "${!fileVar:-}" ]; then
-		val="$(< "${!fileVar}")"
-	fi
-	export "$var"="$val"
-	unset "$fileVar"
-}
-
-verlte() {
-	[  "$1" == "`echo -e "$1\n$2" | sort -V | head -n1`" ]
-}
-
-verlt() {
-	[ "$1" == "$2" ] && return 1 || verlte $1 $2
-}
+. /usr/local/bin/functions.sh
 
 if [ "${1:0:1}" = '-' ]; then
 	set -- postgres "$@"
 fi
 
+file_env 'PGUSER' 'postgres'
+file_env 'PGDATABASE' "$PGUSER"
+file_env 'PGPASSWORD'
+
 if [ "$1" = 'postgres' ]; then
-	for x in /docker-pre-builtin.d/*; do
-		if [ -f "${x}" -a -x "${x}" ]; then
-			echo "-----> Running ${x}"
-			"${x}"
-		fi
-	done
-	for x in /docker-pre-entrypoint.d/*; do
+	for x in /image-pre-entrypoint.d/* /docker-pre-entrypoint.d/*; do
 		if [ -f "${x}" -a -x "${x}" ]; then
 			echo "-----> Running ${x}"
 			"${x}"
@@ -53,11 +22,11 @@ if [ "$1" = 'postgres' ]; then
 
 	mkdir -p "$PGDATA"
 	chmod 700 "$PGDATA"
-	chown -R postgres "$PGDATA"
+	chown -R postgres: "$PGDATA"
 
 	mkdir -p /run/postgresql
 	chmod g+s /run/postgresql
-	chown -R postgres /run/postgresql
+	chown -R postgres: /run/postgresql
 
 	# look specifically for PG_VERSION, as it is expected in the DB dir
 	if [ ! -s "$PGDATA/PG_VERSION" ]; then
@@ -66,7 +35,6 @@ if [ "$1" = 'postgres' ]; then
 
 		# check password first so we can output the warning before postgres
 		# messes it up
-		file_env 'PGPASSWORD'
 		if [ "$PGPASSWORD" ]; then
 			pass="PASSWORD '$PGPASSWORD'"
 			authMethod=md5
@@ -121,10 +89,7 @@ EOF
 
 		echo
 
-		file_env 'PGUSER' 'postgres'
-		file_env 'PGDATABASE' "$PGUSER"
-
-		for x in /docker-builtin-pre-start.d/*; do
+		for x in /image-pre-start.d/*; do
 			if [ -f "${x}" -a -x "${x}" ]; then
 				echo "-----> Running ${x}"
 				"${x}"
@@ -156,14 +121,8 @@ EOF
 		EOSQL
 
 		echo
-		for x in /docker-builtin-initdb.d/*; do
-			if [ -f "${x}" -a -x "${x}" ]; then
-				echo "-----> Running ${x}"
-				"${x}"
-			fi
-		done
 
-		for f in /docker-entrypoint-initdb.d/*; do
+		for f in /image-entrypoint-initdb.d/* /docker-entrypoint-initdb.d/*; do
 			case "$f" in
 				*.sh)     echo "$0: running $f"; . "$f" ;;
 				*.sql)    echo "$0: running $f"; "${psql[@]}" -f "$f"; echo ;;
@@ -180,13 +139,7 @@ EOF
 		echo
 	fi
 
-	for x in /docker-post-builtin.d/*; do
-		if [ -f "${x}" -a -x "${x}" ]; then
-			echo "-----> Running ${x}"
-			"${x}"
-		fi
-	done
-	for x in /docker-post-entrypoint.d/*; do
+	for x in /image-post-entrypoint.d/* /docker-post-entrypoint.d/*; do
 		if [ -f "${x}" -a -x "${x}" ]; then
 			echo "-----> Running ${x}"
 			"${x}"

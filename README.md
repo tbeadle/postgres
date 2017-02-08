@@ -23,15 +23,34 @@ The following changes are incorporated:
    scripts will be executed immediately before starting the database.  These
    directories are different from the standard `/docker-entrypoint-initdb.d` in
    that that directory will only be processed when the database did not already
-   exist and is getting initialized.
+   exist and is getting initialized.  These directories are typically mounted as
+   volumes for a container.  If you create a Dockerfile that extends this image,
+   there are directories that you can include in your image, which will not
+   interfere with the ones already mentioned (allowing your image's users to
+   continue using those):
+   - `/image-pre-entrypoint.d` - Scripts in here run before those in
+     `/docker-pre-entrypoint.d`.
+   - `/image-pre-start.d` - Scripts in here run after initdb has been run but
+     before postgres started for the first time.  It can be used to modify
+     `postgresql.conf`, for instance.
+   - `/image-entrypoint-initdb.d` - Scripts in here run before those in
+     `/docker-entrypoint-initdb.d`.
+   - `/image-post-entrypoint.d` - Scripts in here run before those in
+     `/docker-post-entrypoint.d`.
  - There are some environment variables that can be used to tune the
    postgresql.conf:
 
-LOG_MIN_DURATION_TIMEOUT | Cause statements taken longer than the given value to
-be logged.  Defaults to 600ms.
-CHECKPOINT_TIMEOUT | Set the maximum amount of time between checkpoints.
-Defaults to 20min.
+| Variable name | Description |
+| ------------- | ----------- |
+| LOG_MIN_DURATION_TIMEOUT | Cause statements taken longer than the given value to be logged.  Defaults to 600ms. |
+| CHECKPOINT_TIMEOUT | Set the maximum amount of time between checkpoints.  Defaults to 20min. |
 
 The images are on docker hub at https://hub.docker.com/r/tbeadle/postgres/
 
 To build the images, just run `docker-compose build`.
+
+## Using with barman for database backups
+
+See the README.md in the `barman` directory for information on an image that can
+be used in conjunction with a [barman](http://www.pgbarman.org/) server for
+backing up the database.

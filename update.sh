@@ -19,6 +19,7 @@ for version in "${versions[@]}"; do
 	(
 		set -x
 		cp docker-entrypoint.sh "$version/"
+		cp functions.sh "$version/"
 		sed 's/%%PG_MAJOR%%/'"$version"'/g; s/%%PG_VERSION%%/'"$fullVersion"'/g' Dockerfile-debian.template > "$version/Dockerfile"
 	)
 

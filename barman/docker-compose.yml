@@ -1,0 +1,27 @@
+version: '2'
+services:
+  pg9_6:
+    image: tbeadle/postgres:9.6-barman
+    build:
+      context: .
+      dockerfile: Dockerfile-9.6
+  pg9_5:
+    image: tbeadle/postgres:9.5-barman
+    build:
+      context: .
+      dockerfile: Dockerfile-9.5
+  pg9_4:
+    image: tbeadle/postgres:9.4-barman
+    build:
+      context: .
+      dockerfile: Dockerfile-9.4
+  pg9_3:
+    image: tbeadle/postgres:9.3-barman
+    build:
+      context: .
+      dockerfile: Dockerfile-9.3
+  pg9_2:
+    image: tbeadle/postgres:9.2-barman
+    build:
+      context: .
+      dockerfile: Dockerfile-9.2

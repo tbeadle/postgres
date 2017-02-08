@@ -37,8 +37,11 @@ RUN set -ex; \
 	rm -r "$GNUPGHOME"; \
 	apt-key list
 
-ENV PG_MAJOR 9.6
-ENV PG_VERSION 9.6.1-2.pgdg80+1
+ENV \
+	PG_MAJOR=9.6 \
+	PG_VERSION=9.6.1-2.pgdg80+1 \
+	PATH=/usr/lib/postgresql/9.6/bin:$PATH \
+	PGDATA=/var/lib/postgresql/data
 
 RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ jessie-pgdg main' $PG_MAJOR > /etc/apt/sources.list.d/pgdg.list
 
@@ -57,8 +60,6 @@ RUN mv -v /usr/share/postgresql/$PG_MAJOR/postgresql.conf.sample /usr/share/post
 
 RUN mkdir -p /var/run/postgresql && chown -R postgres /var/run/postgresql
 
-ENV PATH /usr/lib/postgresql/$PG_MAJOR/bin:$PATH
-ENV PGDATA /var/lib/postgresql/data
 VOLUME /var/lib/postgresql/data
 
 RUN apt-get update \
@@ -68,8 +69,8 @@ RUN apt-get update \
 	&& rm -rf /var/lib/apt/lists/*
 
 COPY docker-entrypoint.sh /
-
-ENTRYPOINT ["/docker-entrypoint.sh"]
+COPY functions.sh /usr/local/bin/
 
 EXPOSE 5432
+ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["postgres"]

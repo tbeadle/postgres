@@ -1,0 +1,23 @@
+FROM tbeadle/postgres:9.4
+
+RUN apt-get update \
+	&& apt-get install -y --no-install-recommends \
+		openssh-server \
+		rsync \
+		supervisor \
+	&& rm -Rf /var/lib/apt/lists/* \
+	&& sed -i 's/\(.*pam_loginuid.so\)/#\1/' /etc/pam.d/sshd
+ENV \
+	BARMAN_USER=barman \
+	BARMAN_PASSWORD= \
+	BARMAN_PUBKEY=/private/barman.id_rsa.pub \
+	SSH_HOST_KEY=/private/ssh_host_rsa_key \
+	STREAMING_USER=streaming_barman \
+	STREAMING_PASSWORD=
+ENTRYPOINT [ "/barman-entrypoint.sh" ]
+CMD [ ]
+VOLUME /var/log/supervisor
+COPY supervisord.conf /etc/
+COPY barman-entrypoint.sh /
+COPY image-entrypoint-initdb.d /image-entrypoint-initdb.d/
+COPY image-pre-start.d /image-pre-start.d
