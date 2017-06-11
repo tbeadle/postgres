@@ -39,7 +39,7 @@ RUN set -ex; \
 
 ENV \
 	PG_MAJOR=9.2 \
-	PG_VERSION=9.2.20-1.pgdg80+1 \
+	PG_VERSION=9.2.21-1.pgdg80+1 \
 	PATH=/usr/lib/postgresql/9.2/bin:$PATH \
 	PGDATA=/var/lib/postgresql/data
 

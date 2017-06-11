@@ -1,5 +1,8 @@
 FROM tbeadle/postgres:9.6
 
+# explicitly set user/group IDs
+RUN install -d -m 0700 -o postgres -g postgres /home/postgres
+
 RUN apt-get update \
 	&& apt-get install -y --no-install-recommends \
 		openssh-server \

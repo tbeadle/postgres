@@ -30,3 +30,7 @@ verlte() {
 verlt() {
 	[ "$1" == "$2" ] && return 1 || verlte $1 $2
 }
+
+major_gte() { verlt $1 ${PG_MAJOR}; }
+major_lt() { verlt ${PG_MAJOR} $1; }
+
